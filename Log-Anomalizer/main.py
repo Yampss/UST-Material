@@ -24,3 +24,4 @@ with open(outputfile, "w") as out:
             for line in lines:
                 if k in line.lower().split():
                     out.write(line)   
+print("Check Output.txt for the flagged lines")
