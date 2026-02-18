@@ -1,4 +1,6 @@
-!/bin/bash
+#!/bin/bash
+
+OUT="snapshot_$(date +%F_%H-%M-%S).txt"
 
 {
 echo "===== DATE ====="
@@ -12,4 +14,6 @@ printenv | sort
 
 echo "===== ACTIVE USERS ====="
 who
-} > snapshot_$(date +%F_%H-%M-%S).txt
+} > "$OUT"
+
+echo "Snapshot saved to $OUT"
