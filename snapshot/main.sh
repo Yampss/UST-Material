@@ -3,16 +3,16 @@
 OUT="snapshot_$(date +%F_%H-%M-%S).txt"
 
 {
-echo "===== DATE ====="
+echo "DATE"
 date
 
-echo "===== INSTALLED PACKAGES ====="
+echo "INSTALLED PACKAGES"
 dpkg -l 2>/dev/null || rpm -qa
 
-echo "===== ENVIRONMENT VARIABLES ====="
+echo " ENVIRONMENT VARIABLES "
 printenv | sort
 
-echo "===== ACTIVE USERS ====="
+echo "ACTIVE USERS"
 who
 } > "$OUT"
 
