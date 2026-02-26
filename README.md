@@ -31,39 +31,79 @@ quadrantChart
 
 ## �📊 Architecture Landscape
 
+### Three-Tier Web Architecture
+
 ```mermaid
-graph TB
-    subgraph "AWS Cloud Infrastructure"
-        subgraph "3-Tier Architecture"
-            A1[React Frontend] --> A2[External ALB]
-            A2 --> A3[Nginx Web Tier]
-            A3 --> A4[Internal ALB]
-            A4 --> A5[Node.js App Tier]
-            A5 --> A6[Aurora MySQL RDS]
-        end
-        
-        subgraph "Microservices"
-            B1[Apache2 Frontend] --> B2[External ALB]
-            B2 --> B3[Internal ALB]
-            B3 --> B4[Orders Service EC2]
-            B3 --> B5[Users Service EC2]
-            B4 --> B6[(MySQL)]
-            B5 --> B7[(MySQL)]
-        end
-        
-        subgraph "Monolithic & FastAPI"
-            C1[Monolithic Spring Boot] --> C2[(AWS RDS)]
-            C3[FastAPI Blog] --> C4[(SQLite/MySQL)]
-        end
-    end
-    
-    style A1 fill:#61dafb
-    style B1 fill:#d55
-    style C1 fill:#6db33f
-    style C3 fill:#009688
+flowchart LR
+    User[👤 User]
+    User --> ExtALB[External ALB]
+    ExtALB --> Nginx[Nginx Web Tier]
+    Nginx --> IntALB[Internal ALB]
+    IntALB --> Node[Node.js App Tier]
+    Node --> Aurora[Aurora MySQL RDS]
+    style User fill:#4285f4
+    style ExtALB fill:#ff9900
+    style IntALB fill:#ff9900
+    style Nginx fill:#61dafb
+    style Node fill:#6db33f
+    style Aurora fill:#527fff
 ```
 
+---
+
+### Microservices Architecture
+
+```mermaid
+flowchart TB
+    Client[👤 Client] -->|HTTPS| ExtALB[External ALB]
+    ExtALB --> Apache[Apache2 Frontend]
+    Apache -->|API Calls| IntALB[Internal ALB]
+    IntALB --> Orders[Orders Service EC2]
+    IntALB --> Users[Users Service EC2]
+    Orders --> OrdersDB[(ordersdb)]
+    Users --> UsersDB[(usersdb)]
+    style Client fill:#4285f4
+    style ExtALB fill:#ff9900
+    style IntALB fill:#ff9900
+    style Orders fill:#6db33f
+    style Users fill:#6db33f
+    style Apache fill:#d55
+```
+
+---
+
+### Monolithic Application (Spring Boot)
+
+```mermaid
+flowchart LR
+    User[👤 User] -->|HTTP| EC2[Spring Boot App EC2]
+    EC2 --> RDS[(AWS RDS MySQL)]
+    style User fill:#4285f4
+    style EC2 fill:#6db33f
+    style RDS fill:#527fff
+```
+
+---
+
+### User-BlogPost FastAPI Application
+
+```mermaid
+flowchart LR
+    User[👤 User] -->|HTTP| Apache[Apache2 Reverse Proxy]
+    Apache --> FastAPI[FastAPI App]
+    FastAPI --> DB[(MySQL)]
+    style User fill:#4285f4
+    style Apache fill:#d55
+    style FastAPI fill:#009688
+    style DB fill:#00758f
+```
+
+---
+
 ##  Projects Overview
+
+> **Note:** Each project below is a completely independent deployment. There is no shared infrastructure or integration between them. All diagrams and documentation now reflect this separation.
+
 
 ### 1. Three-Tier Web Architecture
 A production-grade three-tier architecture demonstrating complete AWS deployment:
