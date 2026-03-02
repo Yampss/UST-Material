@@ -1,4 +1,4 @@
-FROM eclipse-temurin: 17-jre
+FROM eclipse-temurin: 17-jdk
 ENV DEBIAN_ENVIORNMENT=noninteractive
 RUN apt update -y && apt install maven -y && apt install mysql-server -y
 WORKDIR /app
