@@ -1,0 +1,228 @@
+﻿# ============================================================
+# docker-compose.yml — Team 4 Flower Fusion (AFF)
+# 3-TIER MICROSERVICES ARCHITECTURE | Docker Training Project
+# ============================================================
+#
+# 
+#               3-TIER NETWORK ARCHITECTURE                    
+# 
+#
+#   TIER 1: FRONTEND NETWORK (frontend-net)
+#    nginx          (reverse proxy, port 80)
+#    web-app        (serves HTML views)
+#
+#   TIER 2: BACKEND NETWORK (backend-net)
+#    web-app        (bridges frontend to backend)
+#    auth-api       (authentication microservice)
+#    product-api    (products microservice)
+#    cart-api       (cart/orders microservice)
+#
+#   TIER 3: DATABASE NETWORK (db-net)
+#    auth-api       (needs DB access)
+#    product-api    (needs DB access)
+#    cart-api       (needs DB access)
+#    mongodb        (database)
+#
+# 
+#                     NETWORK ISOLATION                        
+# 
+#
+#   nginx        frontend-net ONLY (cannot reach APIs or DB)
+#   web-app      frontend-net + backend-net (bridges tiers)
+#   APIs         backend-net + db-net (business logic + data)
+#   mongodb      db-net ONLY (completely isolated)
+#
+# ============================================================
+
+services:
+
+  # 
+  # TIER 3: DATABASE
+  # mongodb — Data Layer (db-net only)
+  # 
+  mongodb:
+    image: mongo:7
+    container_name: flower-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: AFF-Docker
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - db-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+
+  # 
+  # TIER 2: BACKEND MICROSERVICES
+  # 
+
+  # AUTH-API — Authentication Microservice
+  auth-api:
+    build:
+      context: ./services/auth-api
+      dockerfile: Dockerfile
+    container_name: flower-auth-api
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - PORT=3001
+      - MONGO_URI=mongodb://mongodb:27017/AFF-Docker
+    networks:
+      - backend-net
+      - db-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+
+  # PRODUCT-API — Products & Sellers Microservice
+  product-api:
+    build:
+      context: ./services/product-api
+      dockerfile: Dockerfile
+    container_name: flower-product-api
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - PORT=3002
+      - MONGO_URI=mongodb://mongodb:27017/AFF-Docker
+    networks:
+      - backend-net
+      - db-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3002/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+
+  # CART-API — Cart, Orders & Customization Microservice
+  cart-api:
+    build:
+      context: ./services/cart-api
+      dockerfile: Dockerfile
+    container_name: flower-cart-api
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      - PORT=3003
+      - MONGO_URI=mongodb://mongodb:27017/AFF-Docker
+    networks:
+      - backend-net
+      - db-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3003/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+
+  # 
+  # TIER 1 & 2 BRIDGE: WEB-APP
+  # Serves views on frontend-net, calls APIs on backend-net
+  # 
+  web-app:
+    build:
+      context: ./services/web-app
+      dockerfile: Dockerfile
+    container_name: flower-web-app
+    restart: unless-stopped
+    depends_on:
+      auth-api:
+        condition: service_healthy
+      product-api:
+        condition: service_healthy
+      cart-api:
+        condition: service_healthy
+    environment:
+      - PORT=3000
+      - SESSION_SECRET=your-secret-key
+      - AUTH_API_URL=http://auth-api:3001
+      - PRODUCT_API_URL=http://product-api:3002
+      - CART_API_URL=http://cart-api:3003
+    networks:
+      - frontend-net
+      - backend-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+
+  # 
+  # TIER 1: FRONTEND
+  # nginx — Reverse Proxy (frontend-net only)
+  # ONLY container exposed to the internet
+  # 
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: flower-nginx
+    restart: unless-stopped
+    depends_on:
+      web-app:
+        condition: service_healthy
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    networks:
+      - frontend-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+
+# ============================================================
+# VOLUMES
+# ============================================================
+volumes:
+  mongo-data:
+    driver: local
+
+
+# ============================================================
+# NETWORKS — 3-TIER ARCHITECTURE
+#
+# frontend-net: nginx <-> web-app (presentation layer)
+# backend-net:  web-app <-> APIs (business logic layer)
+# db-net:       APIs <-> mongodb (data layer)
+#
+# Isolation:
+#   - nginx CANNOT reach APIs or mongodb directly
+#   - mongodb CANNOT be reached from frontend-net
+#   - Only web-app bridges frontend and backend
+#   - Only APIs bridge backend and database
+# ============================================================
+networks:
+  frontend-net:
+    driver: bridge
+    name: aff-frontend-net
+
+  backend-net:
+    driver: bridge
+    name: aff-backend-net
+
+  db-net:
+    driver: bridge
+    name: aff-db-net
