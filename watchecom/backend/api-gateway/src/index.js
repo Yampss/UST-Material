@@ -1,0 +1,125 @@
+const express = require("express");
+const { createProxyMiddleware } = require("http-proxy-middleware");
+const axios = require("axios");
+const { v4: uuidv4 } = require("uuid");
+
+const app = express();
+const port = parseInt(process.env.PORT || "8080", 10);
+const registryUrl = process.env.REGISTRY_URL || "";
+const loggingUrl = process.env.LOGGING_URL || "";
+
+const routeMap = [
+  { prefix: "/api/users", service: "user-service" },
+  { prefix: "/api/products", service: "product-service" },
+  { prefix: "/api/cart", service: "cart-service" },
+  { prefix: "/api/orders", service: "order-service" },
+  { prefix: "/api/reviews", service: "review-service" }
+];
+
+app.use(express.json({ limit: "1mb" }));
+
+app.use((req, res, next) => {
+  const requestId = req.header("X-Request-ID") || uuidv4();
+  req.requestId = requestId;
+  res.setHeader("X-Request-ID", requestId);
+  next();
+});
+
+async function logEvent(level, message, meta = {}) {
+  const payload = {
+    level,
+    message,
+    service: "api-gateway",
+    requestId: meta.requestId || "unknown",
+    meta
+  };
+
+  console.log(JSON.stringify({
+    timestamp: new Date().toISOString(),
+    ...payload
+  }));
+
+  if (loggingUrl) {
+    try {
+      await axios.post(loggingUrl, payload, { timeout: 1500 });
+    } catch (error) {
+      console.log(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: "WARN",
+        service: "api-gateway",
+        message: "logging_service_unavailable",
+        meta: { error: error.message }
+      }));
+    }
+  }
+}
+
+app.use((req, res, next) => {
+  logEvent("INFO", "request_start", {
+    requestId: req.requestId,
+    method: req.method,
+    path: req.path
+  });
+  res.on("finish", () => {
+    logEvent("INFO", "request_end", {
+      requestId: req.requestId,
+      status: res.statusCode
+    });
+  });
+  next();
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+async function resolveServiceTarget(serviceName) {
+  if (!registryUrl) {
+    return null;
+  }
+
+  const response = await axios.get(`${registryUrl}/services`, {
+    params: { name: serviceName },
+    timeout: 1500
+  });
+
+  const instances = response.data.instances || [];
+  if (!instances.length) {
+    return null;
+  }
+
+  const instance = instances[0];
+  return `http://${instance.host}:${instance.port}`;
+}
+
+routeMap.forEach(({ prefix, service }) => {
+  app.use(prefix, async (req, res, next) => {
+    try {
+      const target = await resolveServiceTarget(service);
+      if (!target) {
+        return res.status(503).json({ error: "service_unavailable" });
+      }
+      req.target = target;
+      return next();
+    } catch (error) {
+      await logEvent("ERROR", "service_discovery_failed", {
+        requestId: req.requestId,
+        service,
+        error: error.message
+      });
+      return res.status(503).json({ error: "service_unavailable" });
+    }
+  }, createProxyMiddleware({
+    target: "http://localhost",
+    changeOrigin: true,
+    router: (req) => req.target,
+    onError: (err, req, res) => {
+      res.statusCode = 502;
+      res.end(JSON.stringify({ error: "bad_gateway" }));
+    }
+  }));
+});
+
+app.listen(port, () => {
+  logEvent("INFO", "service_started", { port, requestId: "startup" });
+});
