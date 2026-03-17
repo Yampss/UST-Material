@@ -165,7 +165,7 @@ func loadCatalogFromPostgres(catalog *pb.ListProductsResponse) error {
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbName)
+	dsn := fmt.Sprintf("host=%s port=5432 user=%s password=%s dbname=%s sslmode=disable", dbHost, dbUser, dbPassword, dbName)
 
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
