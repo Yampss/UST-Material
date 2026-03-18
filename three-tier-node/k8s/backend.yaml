@@ -14,7 +14,6 @@ spec:
     spec:
       containers:
       - name: backend
-        # Replace this with your dockerhub image, e.g., yourusername/student-backend:latest
         image: cazzzzz/backend:latest
         imagePullPolicy: IfNotPresent
         env:
@@ -36,7 +35,6 @@ kind: Service
 metadata:
   name: backend
 spec:
-  # Name must be exactly "backend" to match what the Nginx proxy expects in frontend config
   selector:
     app: backend
   ports:
