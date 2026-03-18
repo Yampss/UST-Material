@@ -13,7 +13,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        # Replace this with your dockerhub image, e.g., yourusername/student-frontend:latest
         image: cazzzzz/frontend:latest
         imagePullPolicy: IfNotPresent
         ports:
@@ -24,7 +23,6 @@ kind: Service
 metadata:
   name: frontend
 spec:
-  # Using NodePort so you can easily access it directly on the worker node
   type: NodePort
   selector:
     app: frontend
