@@ -13,7 +13,6 @@ spec:
     spec:
       containers:
       - name: mysql
-        # Replace this with your dockerhub image, e.g., yourusername/student-mysql:latest
         image: cazzzzz/database:latest
         imagePullPolicy: IfNotPresent
         env:
