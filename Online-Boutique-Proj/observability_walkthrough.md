@@ -61,7 +61,10 @@ Look at the `PORT(S)` column. You will see something like `80:32109/TCP`.
 1. Open your browser to `http://<ANY-EC2-PUBLIC-IP>:32109` (using your unique 5-digit port from above).
 2. **Login Credentials**:
    - Username: `admin`
-   - Password: `prom-operator`
+   - Password: By default, the `kube-prometheus-stack` generates a secure random password. You can retrieve it by running this command on your terminal:
+     ```bash
+     kubectl get secret -n monitoring monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+     ```
 3. Hover over the "Dashboards" icon (four squares) in the left sidebar and click **Browse**.
 4. You will see dozens of pre-configured dashboards that Prometheus Operator built for you automatically.
 5. Click on **Kubernetes / Compute Resources / Pod** or **Kubernetes / Compute Resources / Cluster**.
