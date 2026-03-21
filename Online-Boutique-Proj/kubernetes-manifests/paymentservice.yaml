@@ -33,6 +33,10 @@ spec:
         ports:
         - containerPort: 50051
         env:
+        - name: ENABLE_TRACING
+          value: "1"
+        - name: COLLECTOR_SERVICE_ADDR
+          value: "jaeger-collector.observability.svc.cluster.local:4317"
         - name: PORT
           value: "50051"
         - name: DISABLE_PROFILER

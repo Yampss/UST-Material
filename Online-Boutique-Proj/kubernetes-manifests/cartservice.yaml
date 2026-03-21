@@ -33,6 +33,10 @@ spec:
         ports:
         - containerPort: 7070
         env:
+        - name: ENABLE_TRACING
+          value: "1"
+        - name: COLLECTOR_SERVICE_ADDR
+          value: "jaeger-collector.observability.svc.cluster.local:4317"
         - name: DB_HOST
           value: "postgres"
         - name: DB_USER
@@ -47,10 +51,10 @@ spec:
         resources:
           requests:
             cpu: 200m
-            memory: 64Mi
+            memory: 256Mi
           limits:
             cpu: 300m
-            memory: 128Mi
+            memory: 512Mi
         readinessProbe:
           initialDelaySeconds: 15
           grpc:

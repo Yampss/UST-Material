@@ -33,6 +33,10 @@ spec:
         ports:
         - containerPort: 3550
         env:
+        - name: ENABLE_TRACING
+          value: "1"
+        - name: COLLECTOR_SERVICE_ADDR
+          value: "jaeger-collector.observability.svc.cluster.local:4317"
         - name: PORT
           value: "3550"
         - name: DISABLE_PROFILER
@@ -49,9 +53,13 @@ spec:
               name: postgres-secret
               key: POSTGRES_PASSWORD
         readinessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
           grpc:
             port: 3550
         livenessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 5
           grpc:
             port: 3550
         resources:

@@ -66,6 +66,10 @@ spec:
           readOnlyRootFilesystem: true
         image: cazzzzz/loadgenerator-hipster:latest
         env:
+        - name: ENABLE_TRACING
+          value: "1"
+        - name: COLLECTOR_SERVICE_ADDR
+          value: "jaeger-collector.observability.svc.cluster.local:4317"
         - name: FRONTEND_ADDR
           value: "frontend:80"
         - name: USERS

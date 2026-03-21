@@ -33,6 +33,10 @@ spec:
         ports:
         - containerPort: 9555
         env:
+        - name: ENABLE_TRACING
+          value: "1"
+        - name: COLLECTOR_SERVICE_ADDR
+          value: "jaeger-collector.observability.svc.cluster.local:4317"
         - name: PORT
           value: "9555"
         resources:
@@ -41,17 +45,23 @@ spec:
             memory: 180Mi
           limits:
             cpu: 300m
-            memory: 300Mi
+            memory: 512Mi
         readinessProbe:
-          initialDelaySeconds: 20
+          initialDelaySeconds: 60
           periodSeconds: 15
           grpc:
             port: 9555
         livenessProbe:
-          initialDelaySeconds: 20
+          initialDelaySeconds: 60
           periodSeconds: 15
           grpc:
             port: 9555
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp-volume
+      volumes:
+      - name: tmp-volume
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
