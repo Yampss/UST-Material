@@ -29,7 +29,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: cazzzzz/cartservice:latest
+        image: cazzzzz/cartservice-hipster:latest
         ports:
         - containerPort: 7070
         env:

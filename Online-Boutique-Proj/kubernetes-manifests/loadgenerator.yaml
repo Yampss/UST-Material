@@ -64,7 +64,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: cazzzzz/loadgenerator:latest
+        image: cazzzzz/loadgenerator-hipster:latest
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"

@@ -29,7 +29,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: cazzzzz/paymentservice:latest
+        image: cazzzzz/paymentservice-hipster:latest
         ports:
         - containerPort: 50051
         env:

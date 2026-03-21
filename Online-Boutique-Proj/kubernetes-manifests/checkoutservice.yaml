@@ -28,7 +28,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: cazzzzz/checkoutservice:latest
+          image: cazzzzz/checkoutservice-hipster:latest
           ports:
           - containerPort: 5050
           readinessProbe:

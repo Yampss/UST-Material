@@ -29,7 +29,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: cazzzzz/productcatalogservice:latest
+        image: cazzzzz/productcatalogservice-hipster:latest
         ports:
         - containerPort: 3550
         env:

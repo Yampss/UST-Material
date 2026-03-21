@@ -28,7 +28,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: cazzzzz/shippingservice:latest
+        image: cazzzzz/shippingservice-hipster:latest
         ports:
         - containerPort: 50051
         env:
