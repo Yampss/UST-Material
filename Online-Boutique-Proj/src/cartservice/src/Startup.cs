@@ -10,6 +10,8 @@ using Microsoft.Extensions.Hosting;
 using cartservice.cartstore;
 using cartservice.services;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace cartservice
 {
@@ -65,6 +67,12 @@ namespace cartservice
 
 
             services.AddGrpc();
+
+            services.AddOpenTelemetry()
+                .WithTracing(builder => builder
+                    .AddAspNetCoreInstrumentation()
+                    .AddGrpcClientInstrumentation()
+                    .AddOtlpExporter());
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

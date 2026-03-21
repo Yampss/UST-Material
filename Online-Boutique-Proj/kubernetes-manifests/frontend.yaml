@@ -30,7 +30,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: frontend
+          image: cazzzzz/frontend:latest
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -66,8 +66,7 @@ spec:
             value: "checkoutservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
-          - name: SHOPPING_ASSISTANT_SERVICE_ADDR
-            value: "shoppingassistantservice:80"
+
           - name: ENABLE_PROFILER
             value: "0"
           resources:

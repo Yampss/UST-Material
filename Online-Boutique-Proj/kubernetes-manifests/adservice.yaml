@@ -29,7 +29,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: adservice
+        image: cazzzzz/adservice:latest
         ports:
         - containerPort: 9555
         env:

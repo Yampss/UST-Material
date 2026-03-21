@@ -29,7 +29,7 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: currencyservice
+        image: cazzzzz/currencyservice:latest
         ports:
         - name: grpc
           containerPort: 7000

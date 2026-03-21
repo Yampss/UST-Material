@@ -1,4 +1,4 @@
-FROM python:3.14.3-alpine@sha256:faee120f7885a06fcc9677922331391fa690d911c020abb9e8025ff3d908e510 AS base
+FROM python:3.11-alpine AS base
 FROM base AS builder
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -15,7 +15,8 @@ RUN apk update \
     && apk add --no-cache libstdc++ \
     && rm -rf /var/cache/apk/*
 WORKDIR /email_server
-COPY --from=builder /usr/local/lib/python3.14/ /usr/local/lib/python3.14/
+COPY --from=builder /usr/local/lib/python3.11/ /usr/local/lib/python3.11/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
 COPY . .
 EXPOSE 8080
-ENTRYPOINT [ "python", "email_server.py" ]
+ENTRYPOINT [ "opentelemetry-instrument", "python", "email_server.py" ]
