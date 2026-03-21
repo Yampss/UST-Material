@@ -1,7 +1,7 @@
 #!/bin/bash
 docker build -t cazzzzz/adservice-hipster:latest ./src/adservice
 docker push cazzzzz/adservice-hipster:latest
-docker build -t cazzzzz/cartservice-hipster:latest ./src/cartservice
+docker build -t cazzzzz/cartservice-hipster:latest ./src/cartservice/src
 docker push cazzzzz/cartservice-hipster:latest
 docker build -t cazzzzz/checkoutservice-hipster:latest ./src/checkoutservice
 docker push cazzzzz/checkoutservice-hipster:latest

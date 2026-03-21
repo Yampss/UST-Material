@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io"
 	"math/rand"
 	"net"
 	"net/http"
