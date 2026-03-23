@@ -224,8 +224,8 @@ Use this only if Part A fails.
 kubectl -n $NS get pods -o wide
 kubectl -n $NS get svc
 kubectl -n $NS exec mysql-0 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id'; SHOW VARIABLES LIKE 'log_bin';"
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\\G"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\\G"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
 kubectl -n $NS get pods -l app=mysql-rw-gateway -o wide
 kubectl -n $NS logs deploy/mysql-rw-gateway --tail=120
 ```
