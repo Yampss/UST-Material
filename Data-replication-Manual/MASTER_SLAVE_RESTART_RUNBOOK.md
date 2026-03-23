@@ -15,10 +15,10 @@ Rules while running this file
 
 ```bash
 NS=stat
-ROOT_PWD='password'
+ROOT_PWD='RootPass!123'
 REPL_USER='repl'
-REPL_PWD='repl123'
-MASTER_HOST='mysql-0.mysql.stat.svc.cluster.local'
+REPL_PWD='ReplPass!123'
+MASTER_HOST='mysql-0.mysql-headless.stat.svc.cluster.local'
 APP_USER='appuser'
 APP_PWD='AppPass123!'
 ```
