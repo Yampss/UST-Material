@@ -67,8 +67,8 @@ kubectl -n $NS get sts mysql -o yaml | grep -n "image:\|serviceName:\|MYSQL_ROOT
 
 ```bash
 kubectl -n $NS exec mysql-0 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SELECT VERSION(); SHOW VARIABLES LIKE 'server_id'; SHOW VARIABLES LIKE 'log_bin';"
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id';"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id';"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id';"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id';"
 ```
 
 Expected before replication setup:
@@ -111,15 +111,15 @@ kubectl -n $NS exec mysql-0 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -ur
 ## A4) Set unique server_id on replicas (demo-safe runtime fix)
 
 ```bash
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SET GLOBAL server_id=101; SET GLOBAL read_only=ON;"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SET GLOBAL server_id=102; SET GLOBAL read_only=ON;"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SET GLOBAL server_id=101; SET GLOBAL read_only=ON;"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SET GLOBAL server_id=102; SET GLOBAL read_only=ON;"
 ```
 
 Verify:
 
 ```bash
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id';"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id';"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id';"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id';"
 ```
 
 ## A5) Create/refresh replication user on master
@@ -143,15 +143,15 @@ kubectl -n $NS exec mysql-1 -- mysql --no-defaults -h $MASTER_HOST -u$REPL_USER 
 ## A6) Configure slaves (MySQL 5.7 syntax)
 
 ```bash
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "STOP SLAVE; RESET SLAVE ALL; CHANGE MASTER TO MASTER_HOST='$MASTER_HOST', MASTER_PORT=3306, MASTER_USER='$REPL_USER', MASTER_PASSWORD='$REPL_PWD', MASTER_AUTO_POSITION=1; START SLAVE;"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "STOP SLAVE; RESET SLAVE ALL; CHANGE MASTER TO MASTER_HOST='$MASTER_HOST', MASTER_PORT=3306, MASTER_USER='$REPL_USER', MASTER_PASSWORD='$REPL_PWD', MASTER_AUTO_POSITION=1; START SLAVE;"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "STOP SLAVE; RESET SLAVE ALL; CHANGE MASTER TO MASTER_HOST='$MASTER_HOST', MASTER_PORT=3306, MASTER_USER='$REPL_USER', MASTER_PASSWORD='$REPL_PWD', MASTER_AUTO_POSITION=1; START SLAVE;"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "STOP SLAVE; RESET SLAVE ALL; CHANGE MASTER TO MASTER_HOST='$MASTER_HOST', MASTER_PORT=3306, MASTER_USER='$REPL_USER', MASTER_PASSWORD='$REPL_PWD', MASTER_AUTO_POSITION=1; START SLAVE;"
 ```
 
 ## A7) Validate replication health
 
 ```bash
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
 ```
 
 Success criteria:
@@ -165,8 +165,8 @@ kubectl -n $NS exec mysql-0 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -ur
 ```
 
 ```bash
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SELECT * FROM appdb.seed_data ORDER BY id DESC LIMIT 5;"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SELECT * FROM appdb.seed_data ORDER BY id DESC LIMIT 5;"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SELECT * FROM appdb.seed_data ORDER BY id DESC LIMIT 5;"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SELECT * FROM appdb.seed_data ORDER BY id DESC LIMIT 5;"
 ```
 
 ## A9) FastAPI gateway verification (write to master, read from replicas)
@@ -224,8 +224,8 @@ Use this only if Part A fails.
 kubectl -n $NS get pods -o wide
 kubectl -n $NS get svc
 kubectl -n $NS exec mysql-0 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW VARIABLES LIKE 'server_id'; SHOW VARIABLES LIKE 'log_bin';"
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
 kubectl -n $NS get pods -l app=mysql-rw-gateway -o wide
 kubectl -n $NS logs deploy/mysql-rw-gateway --tail=120
 ```
