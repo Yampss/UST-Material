@@ -150,8 +150,8 @@ kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -ur
 ## A7) Validate replication health
 
 ```bash
-kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\\G"
-kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\\G"
+kubectl -n $NS exec mysql-1 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
+kubectl -n $NS exec mysql-2 -- env MYSQL_PWD="$ROOT_PWD" mysql --no-defaults -uroot -e "SHOW SLAVE STATUS\G"
 ```
 
 Success criteria:
